@@ -1,35 +1,48 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import SeasonDisplay from './SeasonDisplay';
+import Spinner from './Spinner';
 
-// This is a Functional Component:
-// const App = () => {
-//     window.navigator.geolocation.getCurrentPosition(
-//         (position) => console.log(position), //argument #1, called the success callback because this is what's used when everything goes according to plan
-//         (err) => console.log(err) //argument #2, called the failure callback because this is what is used when the getCurrentPosition() isn't able to determine the users position
-//     );
-//     return <div>Hi there!</div>;
-// };
-
-//This is a Class Based Component:
 class App extends React.Component {
-    constructor(props) {
-        super(props);
-        //Initializing state:
-        this.state = { lat: null };
-    }
-    // React requires that we have to define render or it will throw an error!!
-    render() {
+    // constructor(props) {
+    //     super(props);
+    //     this.state = { lat: null, errorMessage: '' };
+    // }
+
+    // This is equvilant to the code above
+    state = { lat: null, errorMessage: '' };
+
+    componentDidMount() {
         window.navigator.geolocation.getCurrentPosition(
-            (position) => console.log(position), //argument #1, called the success callback because this is what's used when everything goes according to plan
-            (err) => console.log(err) //argument #2, called the failure callback because this is what is used when the getCurrentPosition() isn't able to determine the users position
+            position => this.setState({ lat: position.coords.latitude }),
+            err => this.setState({ errorMessage: err.message })
         );
-        //Referencing state inside of JSX:
-        return <div>Latitude: { this.state.lat } </div>;
+    }
+
+    renderContent() {
+        if (this.state.errorMessage && !this.state.lat) {
+            return <div> Error: {this.state.errorMessage} </div>;
+        }
+        if (!this.state.errorMessage && this.state.lat) {
+            return < SeasonDisplay lat={this.state.lat} />
+        }
+        return <Spinner message="Please accept location request." />;
     };
-};
+
+    render() {
+        return (
+            <div className="render-content">
+                {this.renderContent()}
+            </div>
+        );
+    };
+}
+
+
 
 ReactDOM.render(
-    <App />, //first argument
-    document.querySelector('#root') //second argument
+    <App />,
+    document.querySelector('#root')
 );
+
 
